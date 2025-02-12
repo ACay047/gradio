@@ -47,6 +47,9 @@ class TestDataframe:
             "visible": True,
             "elem_id": None,
             "elem_classes": [],
+            "show_row_numbers": False,
+            "show_search": "none",
+            "pinned_columns": None,
             "wrap": False,
             "proxy_url": None,
             "name": "dataframe",
@@ -54,6 +57,9 @@ class TestDataframe:
             "latex_delimiters": [{"display": True, "left": "$$", "right": "$$"}],
             "line_breaks": True,
             "column_widths": [],
+            "show_fullscreen_button": False,
+            "show_copy_button": False,
+            "max_chars": None,
         }
         dataframe_input = gr.Dataframe()
         output = dataframe_input.preprocess(DataframeData(**x_data))
@@ -85,6 +91,9 @@ class TestDataframe:
             "type": "pandas",
             "label": None,
             "show_label": True,
+            "show_row_numbers": False,
+            "show_search": "none",
+            "pinned_columns": None,
             "scale": None,
             "min_width": 160,
             "interactive": None,
@@ -98,6 +107,9 @@ class TestDataframe:
             "latex_delimiters": [{"display": True, "left": "$$", "right": "$$"}],
             "line_breaks": True,
             "column_widths": [],
+            "show_fullscreen_button": False,
+            "max_chars": None,
+            "show_copy_button": False,
         }
 
         dataframe_input = gr.Dataframe(column_widths=["100px", 200, "50%"])
@@ -113,7 +125,11 @@ class TestDataframe:
         """
         dataframe_output = gr.Dataframe()
         output = dataframe_output.postprocess([]).model_dump()
-        assert output == {"data": [[]], "headers": ["1", "2", "3"], "metadata": None}
+        assert output == {
+            "data": [["", "", ""]],
+            "headers": ["1", "2", "3"],
+            "metadata": None,
+        }
         output = dataframe_output.postprocess(np.zeros((2, 2))).model_dump()
         assert output == {
             "data": [[0, 0], [0, 0]],
@@ -152,6 +168,14 @@ class TestDataframe:
         assert output == {
             "headers": ["one", "two", "three", "4"],
             "data": [[2, True, "ab", 4], [3, True, "cd", 5]],
+            "metadata": None,
+        }
+
+        dataframe_output = gr.Dataframe(headers=["one", "two", "three"])
+        output = dataframe_output.postprocess([(1, 2, 3), (4, 5, 6)]).model_dump()
+        assert output == {
+            "headers": ["one", "two", "three"],
+            "data": [[1, 2, 3], [4, 5, 6]],
             "metadata": None,
         }
 
@@ -316,3 +340,71 @@ class TestDataframe:
                 ],
             },
         }
+
+    def test_dataframe_hidden_columns(self):
+        """Test that hidden columns are properly excluded from the output"""
+        component = gr.Dataframe()
+        df = pd.DataFrame(
+            {"a": [1, 2, 3], "b": [4, 5, 6], "color": ["red", "blue", "green"]}
+        )
+        styled_df = df.style.hide(axis=1, subset=["color"])
+        output = component.postprocess(styled_df).model_dump()
+        assert output == {
+            "data": [
+                [1, 4],
+                [2, 5],
+                [3, 6],
+            ],
+            "headers": ["a", "b"],
+            "metadata": {
+                "display_value": [
+                    ["1", "4"],
+                    ["2", "5"],
+                    ["3", "6"],
+                ],
+                "styling": [
+                    ["", ""],
+                    ["", ""],
+                    ["", ""],
+                ],
+            },
+        }
+
+    def test_is_empty(self):
+        """Test is_empty method with various data types"""
+        df = gr.Dataframe()
+        assert df.is_empty([])
+        assert df.is_empty([[]])
+        assert df.is_empty(np.array([]))
+        assert df.is_empty(np.zeros((2, 0)))
+        assert df.is_empty(None)
+        assert df.is_empty({})
+        assert df.is_empty({"data": [], "headers": ["a", "b"]})
+        assert not df.is_empty({"data": [1, 2]})
+        assert not df.is_empty([[1, 2], [3, 4]])
+        assert not df.is_empty(pd.DataFrame({"a": [1, 2]}))
+        assert not df.is_empty(pd.DataFrame({"a": [1, 2]}).style)
+
+    def test_get_headers(self):
+        """Test get_headers method with various data types"""
+        df = gr.Dataframe()
+        test_df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
+        assert df.get_headers(test_df) == ["col1", "col2"]
+        assert df.get_headers(test_df.style) == ["col1", "col2"]
+        assert df.get_headers({"headers": ["a", "b"]}) == ["a", "b"]
+        assert df.get_headers(np.array([[1, 2], [3, 4]])) == []
+        assert df.get_headers(None) == []
+
+    def test_get_cell_data(self):
+        """Test get_cell_data method with various data types"""
+        df = gr.Dataframe()
+        test_data = [[1, 2], [3, 4]]
+        test_df = pd.DataFrame({"col1": [1, 3], "col2": [2, 4]})
+        assert df.get_cell_data(test_data) == [[1, 2], [3, 4]]
+        assert df.get_cell_data(test_df) == [[1, 2], [3, 4]]
+        assert df.get_cell_data({"data": test_data}) == [[1, 2], [3, 4]]
+        assert df.get_cell_data(np.array([1, 2, 3])) == [[1], [2], [3]]
+
+        styled_df = test_df.style
+        styled_df.hide(axis=1, subset=["col2"])
+        assert df.get_cell_data(styled_df) == [[1], [3]]

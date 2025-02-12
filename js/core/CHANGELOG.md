@@ -1,5 +1,115 @@
 # @gradio/core
 
+## 0.10.0
+
+### Features
+
+- [#10492](https://github.com/gradio-app/gradio/pull/10492) [`29880d5`](https://github.com/gradio-app/gradio/commit/29880d51fbe7fbd222b0765a83c95134dc7d0e90) - Allow showing progress updates on arbitrary components.  Thanks @abidlabs!
+- [#10552](https://github.com/gradio-app/gradio/pull/10552) [`ed25a10`](https://github.com/gradio-app/gradio/commit/ed25a1053a55ddd2cf7d3067c72bdf77185ada8d) - Add 1920px wide resolution for wide monitors.  Thanks @Oncorporation!
+
+### Fixes
+
+- [#10490](https://github.com/gradio-app/gradio/pull/10490) [`178311b`](https://github.com/gradio-app/gradio/commit/178311b72d72a3c5f4a67bee5e0098be4232e68c) - Ensure row numbers functionality in dataframe works as expected.  Thanks @hannahblair!
+- [#10534](https://github.com/gradio-app/gradio/pull/10534) [`855d870`](https://github.com/gradio-app/gradio/commit/855d87001a492afce1aff9c2eb3de765d8855828) - Footer alignment fix.  Thanks @aliabid94!
+
+### Dependency updates
+
+- @gradio/code@0.10.17
+- @gradio/paramviewer@0.7.1
+- @gradio/statustracker@0.10.3
+- @gradio/tabitem@0.4.2
+- @gradio/tabs@0.4.2
+- @gradio/video@0.14.1
+- @gradio/atoms@0.13.2
+- @gradio/utils@0.10.1
+- @gradio/column@0.2.0
+- @gradio/theme@0.4.0
+- @gradio/client@1.12.0
+- @gradio/upload@0.15.1
+- @gradio/button@0.4.6
+- @gradio/wasm@0.17.3
+- @gradio/plot@0.9.8
+- @gradio/gallery@0.15.6
+- @gradio/image@0.21.1
+- @gradio/textbox@0.10.3
+- @gradio/file@0.12.6
+- @gradio/checkbox@0.4.13
+
+## 0.9.0
+
+### Features
+
+- [#10433](https://github.com/gradio-app/gradio/pull/10433) [`2e8dc74`](https://github.com/gradio-app/gradio/commit/2e8dc74f751be02f7217f78d241806b42fcdca04) - Allow building multipage Gradio apps.  Thanks @aliabid94!
+- [#10478](https://github.com/gradio-app/gradio/pull/10478) [`afb96c6`](https://github.com/gradio-app/gradio/commit/afb96c64451e5a282bfee89445d831d1c87f9746) - Improve dataframe's upload accessibility.  Thanks @hannahblair!
+
+### Dependency updates
+
+- @gradio/client@1.11.0
+- @gradio/upload@0.15.0
+- @gradio/button@0.4.5
+- @gradio/paramviewer@0.7.0
+- @gradio/code@0.10.16
+- @gradio/image@0.21.0
+- @gradio/gallery@0.15.5
+- @gradio/file@0.12.5
+- @gradio/video@0.14.0
+
+## 0.8.0
+
+### Features
+
+- [#10420](https://github.com/gradio-app/gradio/pull/10420) [`a69b8e8`](https://github.com/gradio-app/gradio/commit/a69b8e83ad7c89c627db2bdd5d25b0142731aaac) - Support column/row deletion in `gr.DataFrame`.  Thanks @abidlabs!
+- [#10435](https://github.com/gradio-app/gradio/pull/10435) [`ef66fe5`](https://github.com/gradio-app/gradio/commit/ef66fe52b22448a5125a314581f2ec6c73c24145) - Sidebar Component.  Thanks @dawoodkhan82!
+
+### Dependency updates
+
+- @gradio/upload@0.14.8
+- @gradio/button@0.4.4
+- @gradio/code@0.10.15
+- @gradio/file@0.12.4
+- @gradio/image@0.20.4
+- @gradio/video@0.13.4
+- @gradio/wasm@0.17.2
+- @gradio/gallery@0.15.4
+
+## 0.7.0
+
+### Dependency updates
+
+- @gradio/upload@0.14.7
+- @gradio/button@0.4.3
+- @gradio/code@0.10.14
+- @gradio/file@0.12.3
+- @gradio/image@0.20.3
+- @gradio/video@0.13.3
+- @gradio/wasm@0.17.1
+- @gradio/gallery@0.15.3
+
+## 0.7.0
+
+### Features
+
+- [#10341](https://github.com/gradio-app/gradio/pull/10341) [`b0cf92f`](https://github.com/gradio-app/gradio/commit/b0cf92f03ba29f29fa540de8c5803a7263df0106) - PWA icon customization.  Thanks @whitphx!
+
+### Dependency updates
+
+- @gradio/upload@0.14.6
+- @gradio/textbox@0.10.2
+- @gradio/button@0.4.2
+- @gradio/video@0.13.2
+- @gradio/wasm@0.17.0
+- @gradio/statustracker@0.10.2
+- @gradio/image@0.20.2
+- @gradio/gallery@0.15.2
+- @gradio/plot@0.9.7
+- @gradio/tabitem@0.4.1
+- @gradio/tabs@0.4.1
+- @gradio/code@0.10.13
+- @gradio/paramviewer@0.6.4
+- @gradio/column@0.2.0
+- @gradio/file@0.12.2
+- @gradio/checkbox@0.4.12
+
 ## 0.6.1
 
 ### Fixes
