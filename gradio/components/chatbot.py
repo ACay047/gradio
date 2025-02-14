@@ -42,13 +42,15 @@ class MetadataDict(TypedDict):
         title: The title of the "thought" message. Required if the message is to be displayed as a thought.
         id: The ID of the message. Only used for nested thoughts. Nested thoughts can be nested by setting the parent_id to the id of the parent thought.
         parent_id: The ID of the parent message. Only used for nested thoughts.
-        duration: The duration of the message. Appears next to the title in the thought bubble in a subdued font.
-        status: The status of the message. If "pending", the status is displayed as a spinner icon.
+        log: A string message to display next to the thought title in a subdued font.
+        duration: The duration of the message in seconds. Appears next to the thought title in a subdued font inside a parentheses.
+        status: The status of the message. If "pending", a spinner icon appears next to the thought title. If "done", the thought accordion becomes closed. If no value is provided, the thought accordion is open and no spinner is displayed.
     """
 
     title: NotRequired[str]
     id: NotRequired[int | str]
     parent_id: NotRequired[int | str]
+    log: NotRequired[str]
     duration: NotRequired[float]
     status: NotRequired[Literal["pending", "done"]]
 
@@ -235,6 +237,7 @@ class Chatbot(Component):
         show_copy_all_button=False,
         allow_file_downloads=True,
         group_consecutive_messages: bool = True,
+        allow_tags: list[str] | None = None,
     ):
         """
         Parameters:
@@ -275,6 +278,7 @@ class Chatbot(Component):
             show_copy_all_button: If True, will show a copy all button that copies all chatbot messages to the clipboard.
             allow_file_downloads: If True, will show a download button for chatbot messages that contain media. Defaults to True.
             group_consecutive_messages: If True, will display consecutive messages from the same role in the same bubble. If False, will display each message in a separate bubble. Defaults to True.
+            allow_tags: If provided, these tags will be preserved in the output chatbot messages, even if `sanitize_html` is `True`. For example, if this list is ["thinking"], the tags `<thinking>` and `</thinking>` will not be removed.
         """
         if type is None:
             warnings.warn(
@@ -324,6 +328,7 @@ class Chatbot(Component):
         self.allow_file_downloads = allow_file_downloads
         self.feedback_options = feedback_options
         self.feedback_value = feedback_value
+        self.allow_tags = allow_tags
         super().__init__(
             label=label,
             every=every,

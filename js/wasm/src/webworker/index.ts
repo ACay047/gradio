@@ -21,13 +21,13 @@ import {
 	getAppHomeDir,
 	resolveAppHomeBasedPath
 } from "./file";
-import { verifyRequirements } from "./requirements";
+import { patchRequirements, verifyRequirements } from "./requirements";
 import { makeAsgiRequest } from "./asgi";
 import { generateRandomString } from "./random";
 import scriptRunnerPySource from "./py/script_runner.py?raw";
 import unloadModulesPySource from "./py/unload_modules.py?raw";
 
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js");
 
 type MessageTransceiver = DedicatedWorkerGlobalScope | MessagePort;
 
@@ -54,6 +54,31 @@ let run_script: (
 	path: string
 ) => Promise<void>;
 let unload_local_modules: (target_dir_path?: string) => void;
+
+async function installPackages(
+	requirements: string[],
+	retries = 3
+): Promise<void> {
+	// A wrapper function to install packages with retries and requirement patching.
+	// Ref: https://github.com/pyodide/micropip/issues/170#issuecomment-2558887851
+	// Background: https://discord.com/channels/879548962464493619/1318487777779646504/1319516137725231124
+
+	const patchedRequirements = patchRequirements(pyodide, requirements);
+
+	for (let i = 0; i < retries; i++) {
+		const isLastTry = i === retries - 1;
+		try {
+			return micropip.install.callKwargs(patchedRequirements, {
+				keep_going: true
+			});
+		} catch (error) {
+			if (isLastTry) {
+				throw error;
+			}
+			console.error("Failed to install packages. Retrying...", error);
+		}
+	}
+}
 
 async function initializeEnvironment(
 	options: InMessageInitEnv["data"],
@@ -83,9 +108,7 @@ async function initializeEnvironment(
 	updateProgress("Loading Gradio wheels");
 	await pyodide.loadPackage(["ssl", "setuptools"]);
 	await micropip.add_mock_package("ffmpy", "0.3.0");
-	await micropip.install.callKwargs(gradioWheelUrls, {
-		keep_going: true
-	});
+	await installPackages(gradioWheelUrls);
 	console.debug("Gradio wheels are loaded.");
 
 	console.debug("Mocking os module methods.");
@@ -219,7 +242,7 @@ async function initializeApp(
 
 	console.debug("Installing packages.", options.requirements);
 	updateProgress("Installing packages");
-	await micropip.install.callKwargs(options.requirements, { keep_going: true });
+	await installPackages(options.requirements);
 	console.debug("Packages are installed.");
 
 	console.debug("Auto-loading modules.");
@@ -516,12 +539,9 @@ function setupMessageHandler(receiver: MessageTransceiver): void {
 				case "install": {
 					const { requirements } = msg.data;
 
-					const micropip = pyodide.pyimport("micropip");
-
 					console.debug("Install the requirements:", requirements);
 					verifyRequirements(requirements); // Blocks the not allowed wheel URL schemes.
-					await micropip.install
-						.callKwargs(requirements, { keep_going: true })
+					await installPackages(requirements)
 						.then(() => {
 							if (requirements.includes("matplotlib")) {
 								// Ref: https://github.com/pyodide/pyodide/issues/561#issuecomment-1992613717
